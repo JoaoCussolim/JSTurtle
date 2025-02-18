@@ -13,7 +13,7 @@
     <div class="container">
         <div class="left-panel">
             <div class="buttons">
-                <button class="help-button">Ajuda</button>
+                <button class="help-button" onclick="showHelpModal()">Ajuda</button>
                 <button class="challenges-button">Desafios</button>
                 <button class="execute-button">Executar</button>
             </div>
@@ -23,6 +23,39 @@
             <canvas class="canvas-display"></canvas>
         </div>
     </div>
+
+    <dialog id="help-dialog">
+        <button id="help-dialog-close-button" class="dialog-close-button">X</button>
+        <h2>Ajuda - Introdução ao Código</h2>
+        <p><strong>O que são variáveis?</strong></p>
+        <p>Variáveis são espaços onde você armazena dados temporariamente. Você pode pensar nelas como caixas que contêm valores. Por exemplo:</p>
+        <pre><code>let x = 5;</code></pre>
+        <p>Aqui, a variável <code>x</code> armazena o valor 5.</p>
+
+        <p><strong>O que são loops?</strong></p>
+        <p>Loops permitem que você repita um conjunto de instruções várias vezes. Por exemplo, o <code>for</code> é usado para repetir ações de acordo com uma condição.</p>
+        <pre><code>for (let i = 0; i < 10; i++) {
+            console.log(i);
+        }</code></pre>
+        <p>Esse código irá imprimir os números de 0 a 9.</p>
+
+        <p><strong>X e Y no plano</strong></p>
+        <p>O plano cartesiano é composto por dois eixos: X (horizontal) e Y (vertical). Ao utilizar X e Y, você define a posição de objetos no espaço.</p>
+        <pre><code>drawCircle(10, 10, 20, 'blue');</code></pre>
+        <p>Neste caso, o círculo será desenhado na posição X = 10 e Y = 10, raio de valor 20 e cor Azul.</p>
+
+        <p><strong>Funções disponíveis:</strong></p>
+        <ul>
+            <li><strong>Função 1:</strong> clear() - Limpa a tela</li>
+            <li><strong>Função 2:</strong> drawSquare(x, y, size, color) - Desenha um quadrado</li>
+            <li><strong>Função 3:</strong> drawCircle(x, y, size, color) - Desenha um circulo</li>
+        </ul>
+    </dialog>
+
+    <dialog id="challenges-dialog">
+        <button id="challenges-dialog-close-button" class="dialog-close-button">X</button>
+        <h1 class="dialog-content">DESAFIOSSSSSSSS</h1>
+    </dialog>
 </body>
 
 </html>

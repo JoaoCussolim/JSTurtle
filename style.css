@@ -93,6 +93,68 @@ canvas {
     border-radius: 8px;
 }
 
+dialog {
+    width: 80%;  
+    max-width: 600px;
+    height: auto;
+    max-height: 70vh;
+    background-color: #a2d9ff;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.dialog-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.dialog-content {
+    text-align: center;
+    font-size: 18px;
+}
+
+code {
+    background-color: #1e1e1e;
+    color: #f8f8f2;
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-family: "Courier New", monospace;
+}
+
+pre {
+    background-color: #1e1e1e;
+    color: #f8f8f2;
+    padding: 10px;
+    border-radius: 3px;
+    font-family: "Courier New", monospace;
+    overflow-x: auto;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+}
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
@@ -117,5 +179,10 @@ canvas {
 
     textarea {
         height: 200px;
+    }
+
+    dialog {
+        width: 90%;
+        max-width: 500px;
     }
 }

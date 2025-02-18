@@ -53,7 +53,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    document.querySelector(".help-button").addEventListener("click", function () {
+    document.querySelector(".execute-button").addEventListener("click", function () {
         runCode();
     });
+    
+    document.querySelector(".help-button").addEventListener("click", function () {
+        document.querySelector("#help-dialog").showModal()
+    });
+
+    document.querySelector("#help-dialog-close-button").addEventListener("click", function () {
+        document.querySelector("#help-dialog").close()
+    })
+
+    document.querySelector(".challenges-button").addEventListener("click", function () {
+        document.querySelector("#challenges-dialog").showModal()
+    });
+
+    document.querySelector("#challenges-dialog-close-button").addEventListener("click", function () {
+        document.querySelector("#challenges-dialog").close()
+    })
 });
