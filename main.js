@@ -28,20 +28,72 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             const userFunction = new Function("ctx", "canvas", `
-                function drawCircle(x, y, size, color) {
+                function drawCircle(x, y, size, color = 'black') {
                     ctx.fillStyle = color;
                     ctx.beginPath();
                     ctx.arc(x, y, size, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
-                function drawSquare(x, y, size, color){
+                function drawSquare(x, y, size, color = 'black'){
                     ctx.fillStyle = color;
                     ctx.fillRect(x, y, size, size);
                 }
 
+                function drawRectangle(x, y, width, height, color = 'black'){
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, width, height)
+                }
+
+                function drawTriangle(x1, y1, x2, y2, x3, y3, color = 'black') {
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.lineTo(x3, y3);
+                    ctx.closePath();
+                    
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+                }
+
+                function drawHeart(x, y, size, color = 'red') {
+                    ctx.beginPath();
+                    let topCurveHeight = size * 0.3;
+                    ctx.moveTo(x, y + topCurveHeight);
+                    ctx.bezierCurveTo(x, y, x - size, y, x - size, y + topCurveHeight);
+                    ctx.bezierCurveTo(x - size, y + (size * 0.9), x, y + (size * 1.5), x, y + size * 2);
+                    ctx.bezierCurveTo(x, y + (size * 1.5), x + size, y + (size * 0.9), x + size, y + topCurveHeight);
+                    ctx.bezierCurveTo(x + size, y, x, y, x, y + topCurveHeight);
+                    ctx.closePath();
+                    
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+                }
+
+                function drawLine(x1, y1, x2, y2, color = 'black') {
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = color;
+                    ctx.stroke();
+                }
+
                 function clear() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+
+                function middleX(){
+                    return canvas.width/2
+                }
+
+                function middleY(){
+                    return canvas.height/2
                 }
 
                 ${code} // Executa o código do usuário
@@ -49,8 +101,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
             userFunction(ctx, canvas);
         } catch (error) {
-            console.error("Erro ao executar código:", error);
+            showErrorMessage(error);
         }
+    }
+
+    function showErrorMessage(msg) {
+        const errorBox = document.getElementById("error-message");
+        errorBox.innerText = msg;
+        errorBox.style.display = "block";
+
+        setTimeout(() => {
+            errorBox.style.display = "none";
+        }, 5000);
     }
 
     document.querySelector(".execute-button").addEventListener("click", function () {
