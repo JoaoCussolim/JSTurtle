@@ -22,12 +22,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    let animationId = null;
+
     function runCode() {
         const code = textarea.value.trim();
     
         try {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+            if (animationId !== null) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
             const userScope = {
                 ctx,
                 canvas,
@@ -104,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (typeof userScope.draw === "function") {
                 function animationLoop() {
                     userScope.draw();
-                    requestAnimationFrame(animationLoop);
+                    animationId = requestAnimationFrame(animationLoop);
                 }
                 animationLoop();
             }
