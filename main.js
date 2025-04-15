@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const textarea = document.querySelector(".code-input");
     const canvas = document.querySelector(".canvas-display");
     const ctx = canvas.getContext("2d");
+    let mouse = {x: 0, y: 0}
 
     function resizeCanvas() {
         canvas.width = canvas.parentElement.clientWidth;
@@ -87,11 +88,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 clear() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                 },
-                middleX() {
-                    return canvas.width / 2;
+                mouseX(){
+                    return mouse.x;
                 },
-                middleY() {
-                    return canvas.height / 2;
+                mouseY(){
+                    return mouse.y;
                 }
             };
     
@@ -151,5 +152,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelector("#challenges-dialog-close-button").addEventListener("click", function () {
         document.querySelector("#challenges-dialog").close();
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect(); // posição e tamanho do canvas na tela
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        mouse = { x: x, y: y };
     });
 });
