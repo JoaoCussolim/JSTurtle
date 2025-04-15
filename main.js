@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     let animationId = null;
+    const capybaraImage = new Image();
+    capybaraImage.src = "capivara.png";
 
     function runCode() {
         const code = textarea.value.trim();
@@ -93,6 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 mouseY(){
                     return mouse.y;
+                },
+                drawCapybara(x, y, size = 50){
+                    ctx.drawImage(capybaraImage, x, y, size, size)
                 }
             };
     
