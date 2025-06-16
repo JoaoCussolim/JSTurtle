@@ -1,67 +1,678 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js"></script>
     <title>JSTurtle</title>
+    <style>
+        :root {
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-code: "Consolas", "Fira Code", "Courier New", monospace;
+            --bg-darkest: #1e1e1e;
+            --bg-dark: #252526;
+            --bg-light: #333333;
+            --border-color: #3c3c3c;
+            --text-color: #d4d4d4;
+            --text-dim: #a0a0a0;
+            --accent-blue: #007acc;
+            --accent-blue-hover: #009cff;
+            --accent-green: #2c8b2c;
+            --accent-green-hover: #37a837;
+            --accent-red: #d16161;
+            --accent-yellow: #dcdcaa;
+            --accent-purple: #c586c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            font-family: var(--font-main);
+            background-color: var(--bg-darkest);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        header {
+            padding: 10px 20px;
+            background-color: var(--bg-dark);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 20px;
+            color: var(--accent-blue);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .execute-button {
+            background-color: var(--accent-green);
+            color: white;
+            font-weight: bold;
+        }
+
+        .execute-button:hover {
+            background-color: var(--accent-green-hover);
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            border-right: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.6em;
+            font-family: var(--font-code);
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            resize: none;
+            outline: none;
+            white-space: pre;
+            overflow-wrap: normal;
+        }
+
+        canvas {
+            background-color: white;
+            width: 100%;
+            height: 100%;
+        }
+
+        dialog {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+        }
+
+        dialog h2 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+        }
+
+        dialog h3 {
+            color: var(--accent-yellow);
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        dialog .dialog-close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-dim);
+            padding: 5px;
+        }
+
+        dialog .dialog-close-button:hover {
+            color: white;
+        }
+
+        dialog p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        dialog ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 15px;
+        }
+
+        dialog li {
+            margin-bottom: 15px;
+            font-family: var(--font-code);
+            font-size: 15px;
+        }
+
+        dialog li strong {
+            color: var(--accent-yellow);
+        }
+
+        dialog li span {
+            color: var(--text-dim);
+        }
+
+        pre {
+            background-color: var(--bg-darkest);
+            padding: 12px;
+            border-radius: 4px;
+            font-family: var(--font-code);
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        code {
+            color: var(--accent-purple);
+        }
+
+        #intellisense-box {
+            position: fixed;
+            display: none;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            max-height: 250px;
+            overflow-y: auto;
+            width: 350px;
+            font-family: var(--font-code);
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .suggestion-item.active {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .suggestion-item:not(.active):hover {
+            background-color: var(--bg-light);
+        }
+
+        .suggestion-item .func-name {
+            color: var(--accent-yellow);
+        }
+
+        .suggestion-item.active .func-name {
+            color: white;
+        }
+
+        .suggestion-item .params {
+            color: var(--text-dim);
+        }
+
+        .suggestion-item.active .params {
+            color: #d4d4d4;
+        }
+
+        #error-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent-red);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            z-index: 1002;
+            /* Acima dos diálogos */
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            display: none;
+            transition: opacity 0.3s;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="left-panel">
-            <div class="buttons">
-                <button class="help-button" onclick="showHelpModal()">Ajuda</button>
-                <button class="challenges-button">Desafios</button>
-                <button class="execute-button">Executar</button>
-            </div>
-            <textarea class="code-input" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+
+    <header>
+        <h1>JSTurtle</h1>
+        <div class="buttons">
+            <button id="help-button">Ajuda</button>
+            <button id="challenges-button">Desafios</button>
+            <button id="execute-button" class="execute-button">Executar (Ctrl+Enter)</button>
         </div>
-        <div class="right-panel">
-            <canvas class="canvas-display"></canvas>
+    </header>
+
+    <main>
+        <div class="panel left-panel">
+            <textarea id="code-input" spellcheck="false"></textarea>
+            <div id="intellisense-box"></div>
         </div>
-        <div id="error-message" class="error-box" style="display: none;"></div>
-    </div>
+        <div class="panel right-panel">
+            <canvas id="canvas-display"></canvas>
+        </div>
+    </main>
+
+    <div id="error-box"></div>
 
     <dialog id="help-dialog">
-        <button id="help-dialog-close-button" class="dialog-close-button">X</button>
-        <h2>Ajuda - Introdução ao Código</h2>
-        <p><strong>O que são variáveis?</strong></p>
-        <p>Variáveis são espaços onde você armazena dados temporariamente. Você pode pensar nelas como caixas que contêm valores. Por exemplo:</p>
-        <pre><code>let x = 5;</code></pre>
-        <p>Aqui, a variável <code>x</code> armazena o valor 5.</p>
-
-        <p><strong>O que são loops?</strong></p>
-        <p>Loops permitem que você repita um conjunto de instruções várias vezes. Por exemplo, o <code>for</code> é usado para repetir ações de acordo com uma condição.</p>
-        <pre><code>for (let i = 0; i < 10; i++) {
-            console.log(i);
-        }</code></pre>
-        <p>Esse código irá imprimir os números de 0 a 9.</p>
-
-        <p><strong>X e Y no plano</strong></p>
-        <p>O plano cartesiano é composto por dois eixos: X (horizontal) e Y (vertical). Ao utilizar X e Y, você define a posição de objetos no espaço.</p>
-        <pre><code>drawCircle(10, 10, 20, 'blue');</code></pre>
-        <p>Neste caso, o círculo será desenhado na posição X = 10 e Y = 10, raio de valor 20 e cor Azul.</p>
-
-        <p><strong>Funções disponíveis:</strong></p>
+        <button class="dialog-close-button">×</button>
+        <h2>Guia de Funções</h2>
+        <p>Use as funções abaixo para desenhar. Cores podem ser nomes (<code>'red'</code>) ou códigos
+            (<code>'#FF5733'</code>).</p>
         <ul>
-            <li><strong>Função 1:</strong> clear() - Limpa a tela</li>
-            <li><strong>Função 2:</strong> drawSquare(x, y, size, color) - Desenha um quadrado</li>
-            <li><strong>Função 3:</strong> drawCircle(x, y, size, color) - Desenha um circulo</li>
-            <li><strong>Função 4:</strong> drawRectangle(x, y, width, height, color) - Desenha um retângulo</li>
-            <li><strong>Função 5:</strong> drawTriangle(x1, y1, x2, y2, x3, y3, color) - Desenha um triângulo</li>
-            <li><strong>Função 6:</strong> drawHeart(x, y, size, color) - Desenha um coração</li>
-            <li><strong>Função 7:</strong> middleX() - Retorna o valor do X do centro</li>
-            <li><strong>Função 8:</strong> middleY() - Retorna o valor do Y do centro</li>
+            <li><strong>clear()</strong><span>: Limpa toda a tela.</span></li>
+            <li><strong>drawCircle(</strong>x, y, raio, cor<strong>)</strong><span>: Desenha um círculo.</span></li>
+            <li><strong>drawSquare(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um quadrado.</span></li>
+            <li><strong>drawRectangle(</strong>x, y, largura, altura, cor<strong>)</strong><span>: Desenha um
+                    retângulo.</span></li>
+            <li><strong>drawLine(</strong>x1, y1, x2, y2, cor, espessura<strong>)</strong><span>: Desenha uma
+                    linha.</span></li>
+            <li><strong>drawStar(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha uma estrela.</span></li>
+            <li><strong>drawText(</strong>texto, x, y, tamanho, cor<strong>)</strong><span>: Escreve um texto.</span>
+            </li>
+            <li><strong>CenterX()</strong><span>: Retorna a coordenada X do centro.</span></li>
+            <li><strong>CenterY()</strong><span>: Retorna a coordenada Y do centro.</span></li>
         </ul>
+
+        <h3>Criando Animações</h3>
+        <p>Para criar animações, você precisa de duas coisas: uma variável para guardar o estado (ex: a posição X de um
+            objeto) e uma função especial chamada <code>draw()</code>.</p>
+        <p>A função <code>draw()</code> é executada repetidamente, cerca de 60 vezes por segundo. Dentro dela, você deve
+            limpar a tela e redesenhar seus objetos em suas novas posições.</p>
+        <pre><code>// 1. Declare uma variável fora da função draw
+let x = 0;
+
+function draw() {
+  // 2. Limpe a tela a cada quadro
+  clear();
+
+  // 3. Desenhe o objeto na posição atual
+  drawSquare(x, 150, 50, 'red');
+
+  // 4. Atualize a variável para o próximo quadro
+  x = x + 1;
+}</code></pre>
     </dialog>
 
     <dialog id="challenges-dialog">
-        <button id="challenges-dialog-close-button" class="dialog-close-button">X</button>
-        <h1 class="dialog-content">DESAFIOSSSSSSSS</h1>
+        <button class="dialog-close-button">×</button>
+        <h2>Desafios de Código</h2>
+        <p>Tente recriar as cenas abaixo usando o código!</p>
+
+        <h3>Desafio 1: Casa Simples</h3>
+        <p>Use retângulos para as paredes e quadrados para as janelas.</p>
+        <pre><code>// Código para começar:
+drawRectangle(150, 250, 200, 150, '#8B4513'); // Parede
+// Agora adicione o telhado (com drawLine) e janelas!</code></pre>
+
+        <h3>Desafio 2: Alvo</h3>
+        <p>Use um loop <code>for</code> e <code>drawCircle</code> para criar círculos concêntricos.</p>
+        <pre><code>let centerX = CenterX();
+let centerY = CenterY();
+let colors = ['blue', 'white', 'red'];
+
+for (let i = 0; i < 3; i++) {
+  drawCircle(centerX, centerY, 150 - i * 50, colors[i]);
+}</code></pre>
+
+        <h3>Desafio 3: Céu Estrelado</h3>
+        <p>Use um loop e <code>Math.random()</code> para desenhar 100 estrelas em locais aleatórios.</p>
+        <pre><code>// Dica: canvas.width e canvas.height dão o tamanho da tela
+for (let i = 0; i < 100; i++) {
+  let x = Math.random() * canvas.width;
+  let y = Math.random() * canvas.height;
+  let size = Math.random() * 8 + 2;
+  drawStar(x, y, size, 'yellow');
+}</code></pre>
     </dialog>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('code-input');
+            const canvas = document.getElementById('canvas-display');
+            const ctx = canvas.getContext('2d');
+            const intellisenseBox = document.getElementById('intellisense-box');
+            let animationFrameId = null;
+
+            const helpDialog = document.getElementById('help-dialog');
+            const challengesDialog = document.getElementById('challenges-dialog');
+            document.getElementById('help-button').addEventListener('click', () => helpDialog.showModal());
+            document.getElementById('challenges-button').addEventListener('click', () => challengesDialog.showModal());
+            helpDialog.querySelector('.dialog-close-button').addEventListener('click', () => helpDialog.close());
+            challengesDialog.querySelector('.dialog-close-button').addEventListener('click', () => challengesDialog.close());
+
+            const resizeCanvas = () => {
+                const parent = canvas.parentElement;
+                canvas.width = parent.clientWidth;
+                canvas.height = parent.clientHeight;
+                runCode();
+            };
+            new ResizeObserver(resizeCanvas).observe(canvas.parentElement);
+
+            const functionSignatures = {
+                'clear': '()',
+                'drawCircle': '(x, y, radius, color)',
+                'drawSquare': '(x, y, size, color)',
+                'drawRectangle': '(x, y, width, height, color)',
+                'drawLine': '(x1, y1, x2, y2, color, lineWidth)',
+                'drawStar': '(x, y, size, color)',
+                'drawText': '(text, x, y, size, color)',
+                'CenterX': '()',
+                'CenterY': '()',
+            };
+
+            const userScope = {
+                canvas,
+                ctx,
+                clear: () => ctx.clearRect(0, 0, canvas.width, canvas.height),
+                drawCircle: (x, y, radius, color = 'black') => {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                },
+                drawSquare: (x, y, size, color = 'black') => {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, size, size);
+                },
+                drawRectangle: (x, y, width, height, color = 'black') => {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, width, height);
+                },
+                drawLine: (x1, y1, x2, y2, color = 'black', lineWidth = 1) => {
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = lineWidth;
+                    ctx.stroke();
+                },
+                drawStar: (x, y, size, color = 'gold') => {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - size);
+                    for (let i = 0; i < 5; i++) {
+                        ctx.lineTo(x + Math.cos((18 + i * 72) * Math.PI / 180) * size, y - Math.sin((18 + i * 72) * Math.PI / 180) * size);
+                        ctx.lineTo(x + Math.cos((54 + i * 72) * Math.PI / 180) * size * 0.5, y - Math.sin((54 + i * 72) * Math.PI / 180) * size * 0.5);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                },
+                drawText: (text, x, y, size = 20, color = 'black') => {
+                    ctx.fillStyle = color;
+                    ctx.font = `${size}px ${getComputedStyle(document.body).fontFamily}`;
+                    ctx.fillText(text, x, y);
+                },
+                CenterX: () => canvas.width / 2,
+                CenterY: () => canvas.height / 2,
+            };
+
+            const runCode = () => {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+
+                const code = textarea.value;
+                try {
+                    const executionScope = { ...userScope };
+
+                    if (code.includes('function draw()')) {
+                        const factoryCode = `${code}\nreturn typeof draw !== 'undefined' ? draw : undefined;`;
+                        const factoryFunction = new Function(...Object.keys(executionScope), factoryCode);
+
+                        const drawFunction = factoryFunction.apply(executionScope, Object.values(executionScope));
+
+                        if (typeof drawFunction === 'function') {
+                            const animate = () => {
+                                drawFunction.call(executionScope);
+                                animationFrameId = requestAnimationFrame(animate);
+                            };
+                            animate();
+                        }
+
+                    } else {
+                        const functionBody = `with(this) { ${code} }`;
+                        const userFunction = new Function(functionBody);
+                        userFunction.call(executionScope);
+                    }
+
+                    document.getElementById('error-box').style.display = 'none';
+                } catch (error) {
+                    const errorBox = document.getElementById('error-box');
+                    errorBox.textContent = `Erro: ${error.message}`;
+                    errorBox.style.display = 'block';
+                    setTimeout(() => { errorBox.style.display = 'none'; }, 5000);
+                }
+            };
+            document.getElementById('execute-button').addEventListener('click', runCode);
+
+
+            let activeSuggestionIndex = -1;
+
+            function handleIntellisense() {
+                const text = textarea.value;
+                const cursorPos = textarea.selectionStart;
+                const textBeforeCursor = text.substring(0, cursorPos);
+                const currentWordMatch = textBeforeCursor.match(/(\w+)$/);
+
+                if (!currentWordMatch) {
+                    closeIntellisense();
+                    return;
+                }
+
+                const currentWord = currentWordMatch[1];
+
+                // --- LÓGICA DE PARSE EM TEMPO REAL ---
+                const userDefinedSymbols = {};
+
+                // Regex para encontrar declarações de função: function nome()
+                const funcRegex = /function\s+([a-zA-Z0-9_]+)\s*\(/g;
+                let match;
+                while ((match = funcRegex.exec(text)) !== null) {
+                    userDefinedSymbols[match[1]] = '()'; // Adiciona como função
+                }
+
+                // Regex para encontrar declarações de variáveis: let, var, const nome = ...
+                const varRegex = /(?:let|const|var)\s+([a-zA-Z0-9_]+)/g;
+                while ((match = varRegex.exec(text)) !== null) {
+                    if (!userDefinedSymbols[match[1]]) { // Não sobrescreve se já for uma função
+                        userDefinedSymbols[match[1]] = ' (variável)';
+                    }
+                }
+
+                // Combina as funções padrão com as encontradas no código do usuário
+                const allSuggestions = { ...functionSignatures, ...userDefinedSymbols };
+
+                // Filtra as sugestões com base no que o usuário está digitando
+                const filteredSuggestions = Object.keys(allSuggestions).filter(key =>
+                    key.toLowerCase().startsWith(currentWord.toLowerCase())
+                );
+
+                if (filteredSuggestions.length > 0) {
+                    renderIntellisense(filteredSuggestions, allSuggestions, currentWord);
+                } else {
+                    closeIntellisense();
+                }
+            }
+
+            function renderIntellisense(suggestions, allSignatures, currentWord) {
+                intellisenseBox.innerHTML = '';
+                activeSuggestionIndex = 0;
+
+                suggestions.forEach((suggestion, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    if (index === 0) item.classList.add('active');
+
+                    // Usa o objeto com todas as assinaturas para mostrar os parâmetros corretos
+                    item.innerHTML = `<span class="func-name">${suggestion}</span><span class="params">${allSignatures[suggestion]}</span>`;
+
+                    item.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        selectSuggestion(suggestion, currentWord);
+                    });
+
+                    intellisenseBox.appendChild(item);
+                });
+
+                const { x, y } = getCursorXY(textarea);
+                intellisenseBox.style.left = `${x}px`;
+                intellisenseBox.style.top = `${y + 20}px`; // +20 para espaçamento
+                intellisenseBox.style.display = 'block';
+            }
+
+            function selectSuggestion(suggestion, currentWord) {
+                const cursorPos = textarea.selectionStart;
+                const textBefore = textarea.value.substring(0, cursorPos - currentWord.length);
+                const textAfter = textarea.value.substring(cursorPos);
+
+                // Verifica se a sugestão é uma função (se contém parênteses na assinatura)
+                const isFunction = (functionSignatures[suggestion] && functionSignatures[suggestion].includes('(')) ||
+                    (!functionSignatures[suggestion] && textBefore.match(/function\s+$/)); // Heurística simples
+
+                const completionText = isFunction ? suggestion + '()' : suggestion;
+
+                textarea.value = textBefore + completionText + textAfter;
+                textarea.focus();
+
+                // Coloca o cursor dentro dos parênteses se for uma função
+                const newCursorPos = isFunction ? (textBefore.length + suggestion.length + 1) : (textBefore.length + suggestion.length);
+                textarea.setSelectionRange(newCursorPos, newCursorPos);
+
+                closeIntellisense();
+            }
+
+            function closeIntellisense() {
+                intellisenseBox.style.display = 'none';
+                activeSuggestionIndex = -1;
+            }
+
+            textarea.addEventListener('input', handleIntellisense);
+            textarea.addEventListener('scroll', closeIntellisense);
+            document.addEventListener('click', (e) => { if (e.target !== textarea) closeIntellisense(); });
+
+            textarea.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    runCode();
+                }
+
+                if (intellisenseBox.style.display === 'block') {
+                    const items = intellisenseBox.querySelectorAll('.suggestion-item');
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        items[activeSuggestionIndex]?.classList.remove('active');
+                        activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+                        items[activeSuggestionIndex]?.classList.add('active');
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        items[activeSuggestionIndex]?.classList.remove('active');
+                        activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+                        items[activeSuggestionIndex]?.classList.add('active');
+                    } else if (e.key === 'Enter' || e.key === 'Tab') {
+                        e.preventDefault();
+                        const suggestionText = items[activeSuggestionIndex]?.querySelector('.func-name').textContent;
+                        if (suggestionText) {
+                            const currentWord = textarea.value.substring(0, textarea.selectionStart).match(/(\w+)$/)?.[1] || '';
+                            selectSuggestion(suggestionText, currentWord);
+                        }
+                    } else if (e.key === 'Escape') {
+                        closeIntellisense();
+                    }
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = textarea.selectionStart;
+                    textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(textarea.selectionEnd);
+                    textarea.selectionStart = textarea.selectionEnd = start + 2;
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const start = textarea.selectionStart;
+                    const lineBefore = textarea.value.substring(0, start).split('\n').pop();
+                    const indent = lineBefore.match(/^\s*/)[0];
+                    textarea.value = textarea.value.substring(0, start) + '\n' + indent + textarea.value.substring(textarea.selectionEnd);
+                    textarea.selectionStart = textarea.selectionEnd = start + 1 + indent.length;
+                }
+            });
+
+            function getCursorXY(input) {
+                const tempDiv = document.createElement('div');
+                const copyStyle = getComputedStyle(input);
+                for (const prop of copyStyle) {
+                    tempDiv.style[prop] = copyStyle[prop];
+                }
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.visibility = 'hidden';
+                tempDiv.style.whiteSpace = 'pre-wrap';
+                document.body.appendChild(tempDiv);
+
+                const textBeforeCursor = input.value.substring(0, input.selectionStart);
+                tempDiv.textContent = textBeforeCursor;
+
+                const span = document.createElement('span');
+                span.textContent = '.';
+                tempDiv.appendChild(span);
+
+                const rect = span.getBoundingClientRect();
+                document.body.removeChild(tempDiv);
+
+                return { x: rect.left, y: rect.top };
+            }
+
+            resizeCanvas();
+        });
+    </script>
 </body>
 
 </html>
