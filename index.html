@@ -316,6 +316,8 @@
             <li><strong>drawSquare(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um quadrado.</span></li>
             <li><strong>drawRectangle(</strong>x, y, largura, altura, cor<strong>)</strong><span>: Desenha um
                     retângulo.</span></li>
+            <li><strong>drawTriangle(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um
+                    triângulo.</span></li>
             <li><strong>drawLine(</strong>x1, y1, x2, y2, cor, espessura<strong>)</strong><span>: Desenha uma
                     linha.</span></li>
             <li><strong>drawStar(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha uma estrela.</span></li>
@@ -410,6 +412,7 @@ for (let i = 0; i < 100; i++) {
                 'drawText': '(text, x, y, size, color)',
                 'CenterX': '()',
                 'CenterY': '()',
+                'drawTriangle': '(x, y, size, color)'
             };
 
             const userScope = {
@@ -441,11 +444,25 @@ for (let i = 0; i < 100; i++) {
                 drawStar: (x, y, size, color = 'gold') => {
                     ctx.fillStyle = color;
                     ctx.beginPath();
-                    ctx.moveTo(x, y - size);
-                    for (let i = 0; i < 5; i++) {
-                        ctx.lineTo(x + Math.cos((18 + i * 72) * Math.PI / 180) * size, y - Math.sin((18 + i * 72) * Math.PI / 180) * size);
-                        ctx.lineTo(x + Math.cos((54 + i * 72) * Math.PI / 180) * size * 0.5, y - Math.sin((54 + i * 72) * Math.PI / 180) * size * 0.5);
+
+                    const outerRadius = size;
+                    const innerRadius = size / 2.5;
+                    const numPoints = 5;
+
+                    for (let i = 0; i < numPoints * 2; i++) {
+                        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+
+                        const angle = (i * Math.PI / numPoints) - (Math.PI / 2);
+
+                        const currentX = x + Math.cos(angle) * radius;
+                        const currentY = y + Math.sin(angle) * radius;
+                        if (i === 0) {
+                            ctx.moveTo(currentX, currentY);
+                        } else {
+                            ctx.lineTo(currentX, currentY);
+                        }
                     }
+
                     ctx.closePath();
                     ctx.fill();
                 },
@@ -453,6 +470,21 @@ for (let i = 0; i < 100; i++) {
                     ctx.fillStyle = color;
                     ctx.font = `${size}px ${getComputedStyle(document.body).fontFamily}`;
                     ctx.fillText(text, x, y);
+                },
+                drawTriangle: (x, y, size, color = 'black') => {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+
+                    ctx.moveTo(x, y);
+
+                    const height = size * (Math.sqrt(3) / 2);
+
+                    ctx.lineTo(x - size / 2, y + height);
+
+                    ctx.lineTo(x + size / 2, y + height);
+
+                    ctx.closePath();
+                    ctx.fill();
                 },
                 CenterX: () => canvas.width / 2,
                 CenterY: () => canvas.height / 2,
@@ -514,28 +546,23 @@ for (let i = 0; i < 100; i++) {
 
                 const currentWord = currentWordMatch[1];
 
-                // --- LÓGICA DE PARSE EM TEMPO REAL ---
                 const userDefinedSymbols = {};
 
-                // Regex para encontrar declarações de função: function nome()
                 const funcRegex = /function\s+([a-zA-Z0-9_]+)\s*\(/g;
                 let match;
                 while ((match = funcRegex.exec(text)) !== null) {
-                    userDefinedSymbols[match[1]] = '()'; // Adiciona como função
+                    userDefinedSymbols[match[1]] = '()';
                 }
 
-                // Regex para encontrar declarações de variáveis: let, var, const nome = ...
                 const varRegex = /(?:let|const|var)\s+([a-zA-Z0-9_]+)/g;
                 while ((match = varRegex.exec(text)) !== null) {
-                    if (!userDefinedSymbols[match[1]]) { // Não sobrescreve se já for uma função
+                    if (!userDefinedSymbols[match[1]]) {
                         userDefinedSymbols[match[1]] = ' (variável)';
                     }
                 }
 
-                // Combina as funções padrão com as encontradas no código do usuário
                 const allSuggestions = { ...functionSignatures, ...userDefinedSymbols };
 
-                // Filtra as sugestões com base no que o usuário está digitando
                 const filteredSuggestions = Object.keys(allSuggestions).filter(key =>
                     key.toLowerCase().startsWith(currentWord.toLowerCase())
                 );
@@ -556,7 +583,6 @@ for (let i = 0; i < 100; i++) {
                     item.className = 'suggestion-item';
                     if (index === 0) item.classList.add('active');
 
-                    // Usa o objeto com todas as assinaturas para mostrar os parâmetros corretos
                     item.innerHTML = `<span class="func-name">${suggestion}</span><span class="params">${allSignatures[suggestion]}</span>`;
 
                     item.addEventListener('mousedown', (e) => {
@@ -569,7 +595,7 @@ for (let i = 0; i < 100; i++) {
 
                 const { x, y } = getCursorXY(textarea);
                 intellisenseBox.style.left = `${x}px`;
-                intellisenseBox.style.top = `${y + 20}px`; // +20 para espaçamento
+                intellisenseBox.style.top = `${y + 20}px`;
                 intellisenseBox.style.display = 'block';
             }
 
@@ -578,16 +604,14 @@ for (let i = 0; i < 100; i++) {
                 const textBefore = textarea.value.substring(0, cursorPos - currentWord.length);
                 const textAfter = textarea.value.substring(cursorPos);
 
-                // Verifica se a sugestão é uma função (se contém parênteses na assinatura)
                 const isFunction = (functionSignatures[suggestion] && functionSignatures[suggestion].includes('(')) ||
-                    (!functionSignatures[suggestion] && textBefore.match(/function\s+$/)); // Heurística simples
+                    (!functionSignatures[suggestion] && textBefore.match(/function\s+$/));
 
                 const completionText = isFunction ? suggestion + '()' : suggestion;
 
                 textarea.value = textBefore + completionText + textAfter;
                 textarea.focus();
 
-                // Coloca o cursor dentro dos parênteses se for uma função
                 const newCursorPos = isFunction ? (textBefore.length + suggestion.length + 1) : (textBefore.length + suggestion.length);
                 textarea.setSelectionRange(newCursorPos, newCursorPos);
 
