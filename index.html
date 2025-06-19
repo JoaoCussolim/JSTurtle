@@ -127,12 +127,16 @@
             height: 100%;
         }
 
+        dialog[open] {
+            display: flex;
+            flex-direction: column;
+        }
+
         dialog {
             background-color: var(--bg-dark);
             color: var(--text-color);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 30px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
             width: 90%;
             max-width: 700px;
@@ -142,11 +146,22 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 1001;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            padding: 0; 
         }
 
         dialog::backdrop {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(3px);
+        }
+
+        dialog .dialog-header {
+            padding: 15px 30px 0 30px;
+            position: relative;
+            flex-shrink: 0;
         }
 
         dialog h2 {
@@ -172,11 +187,19 @@
             cursor: pointer;
             color: var(--text-dim);
             padding: 5px;
+            z-index: 1002;
         }
 
         dialog .dialog-close-button:hover {
             color: white;
         }
+
+        .dialog-main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0px 30px 30px 30px;
+        }
+
 
         dialog p {
             line-height: 1.6;
@@ -211,10 +234,35 @@
             overflow-x: auto;
             margin: 15px 0;
             border: 1px solid var(--border-color);
+            position: relative;
         }
 
         code {
             color: var(--accent-purple);
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        pre:hover .copy-button {
+            opacity: 1;
+        }
+
+        .copy-button:active {
+            background-color: var(--accent-blue);
+            color: white;
         }
 
         #intellisense-box {
@@ -273,7 +321,6 @@
             padding: 12px 20px;
             border-radius: 4px;
             z-index: 1002;
-            /* Acima dos diálogos */
             font-size: 14px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             display: none;
@@ -306,33 +353,45 @@
     <div id="error-box"></div>
 
     <dialog id="help-dialog">
-        <button class="dialog-close-button">×</button>
-        <h2>Guia de Funções</h2>
-        <p>Use as funções abaixo para desenhar. Cores podem ser nomes (<code>'red'</code>) ou códigos
-            (<code>'#FF5733'</code>).</p>
-        <ul>
-            <li><strong>clear()</strong><span>: Limpa toda a tela.</span></li>
-            <li><strong>drawCircle(</strong>x, y, raio, cor<strong>)</strong><span>: Desenha um círculo.</span></li>
-            <li><strong>drawSquare(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um quadrado.</span></li>
-            <li><strong>drawRectangle(</strong>x, y, largura, altura, cor<strong>)</strong><span>: Desenha um
-                    retângulo.</span></li>
-            <li><strong>drawTriangle(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um
-                    triângulo.</span></li>
-            <li><strong>drawLine(</strong>x1, y1, x2, y2, cor, espessura<strong>)</strong><span>: Desenha uma
-                    linha.</span></li>
-            <li><strong>drawStar(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha uma estrela.</span></li>
-            <li><strong>drawText(</strong>texto, x, y, tamanho, cor<strong>)</strong><span>: Escreve um texto.</span>
-            </li>
-            <li><strong>CenterX()</strong><span>: Retorna a coordenada X do centro.</span></li>
-            <li><strong>CenterY()</strong><span>: Retorna a coordenada Y do centro.</span></li>
-        </ul>
+        <div class="dialog-header">
+            <button class="dialog-close-button">×</button>
+            <h2>Guia de Funções</h2>
+        </div>
+        <div class="dialog-main-content">
+            <p>Use as funções abaixo para desenhar. Cores podem ser nomes (<code>'red'</code>) ou códigos
+                (<code>'#FF5733'</code>).</p>
+            <ul>
+                <li><strong>clear()</strong><span>: Limpa toda a tela.</span></li>
+                <li><strong>drawCircle(</strong>x, y, raio, cor<strong>)</strong><span>: Desenha um círculo.</span></li>
+                <li><strong>drawSquare(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um quadrado.</span>
+                </li>
+                <li><strong>drawRectangle(</strong>x, y, largura, altura, cor<strong>)</strong><span>: Desenha um
+                        retângulo.</span></li>
+                <li><strong>drawTriangle(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha um
+                        triângulo.</span></li>
+                <li><strong>drawLine(</strong>x1, y1, x2, y2, cor, espessura<strong>)</strong><span>: Desenha uma
+                        linha.</span></li>
+                <li><strong>drawStar(</strong>x, y, tamanho, cor<strong>)</strong><span>: Desenha uma estrela.</span>
+                </li>
+                <li><strong>drawText(</strong>texto, x, y, tamanho, cor<strong>)</strong><span>: Escreve um
+                        texto.</span>
+                </li>
+                <li><strong>CenterX()</strong><span>: Retorna a coordenada X do centro.</span></li>
+                <li><strong>CenterY()</strong><span>: Retorna a coordenada Y do centro.</span></li>
+                <li><strong>RandomInt(</strong>min, max<strong>)</strong><span>: Retorna um número inteiro aleatório
+                        entre min e max (inclusive).</span></li>
+                <li><strong>MouseX()</strong><span>: Retorna a coordenada X atual do mouse no canvas.</span></li>
+                <li><strong>MouseY()</strong><span>: Retorna a coordenada Y atual do mouse no canvas.</span></li>
+            </ul>
 
-        <h3>Criando Animações</h3>
-        <p>Para criar animações, você precisa de duas coisas: uma variável para guardar o estado (ex: a posição X de um
-            objeto) e uma função especial chamada <code>draw()</code>.</p>
-        <p>A função <code>draw()</code> é executada repetidamente, cerca de 60 vezes por segundo. Dentro dela, você deve
-            limpar a tela e redesenhar seus objetos em suas novas posições.</p>
-        <pre><code>// 1. Declare uma variável fora da função draw
+            <h3>Criando Animações</h3>
+            <p>Para criar animações, você precisa de duas coisas: uma variável para guardar o estado (ex: a posição X de
+                um
+                objeto) e uma função especial chamada <code>draw()</code>.</p>
+            <p>A função <code>draw()</code> é executada repetidamente, cerca de 60 vezes por segundo. Dentro dela, você
+                deve
+                limpar a tela e redesenhar seus objetos em suas novas posições.</p>
+            <pre><button class="copy-button" aria-label="Copiar código">⎘</button><code>// 1. Declare uma variável fora da função draw
 let x = 0;
 
 function draw() {
@@ -345,22 +404,26 @@ function draw() {
   // 4. Atualize a variável para o próximo quadro
   x = x + 1;
 }</code></pre>
+        </div>
     </dialog>
 
     <dialog id="challenges-dialog">
-        <button class="dialog-close-button">×</button>
-        <h2>Desafios de Código</h2>
-        <p>Tente recriar as cenas abaixo usando o código!</p>
+        <div class="dialog-header">
+            <button class="dialog-close-button">×</button>
+            <h2>Desafios de Código</h2>
+        </div>
+        <div class="dialog-main-content">
+            <p>Tente recriar as cenas abaixo usando o código!</p>
 
-        <h3>Desafio 1: Casa Simples</h3>
-        <p>Use retângulos para as paredes e quadrados para as janelas.</p>
-        <pre><code>// Código para começar:
+            <h3>Desafio 1: Casa Simples</h3>
+            <p>Use retângulos para as paredes e quadrados para as janelas.</p>
+            <pre><button class="copy-button" aria-label="Copiar código">⎘</button><code>// Código para começar:
 drawRectangle(150, 250, 200, 150, '#8B4513'); // Parede
 // Agora adicione o telhado (com drawLine) e janelas!</code></pre>
 
-        <h3>Desafio 2: Alvo</h3>
-        <p>Use um loop <code>for</code> e <code>drawCircle</code> para criar círculos concêntricos.</p>
-        <pre><code>let centerX = CenterX();
+            <h3>Desafio 2: Alvo</h3>
+            <p>Use um loop <code>for</code> e <code>drawCircle</code> para criar círculos concêntricos.</p>
+            <pre><button class="copy-button" aria-label="Copiar código">⎘</button><code>let centerX = CenterX();
 let centerY = CenterY();
 let colors = ['blue', 'white', 'red'];
 
@@ -368,15 +431,39 @@ for (let i = 0; i < 3; i++) {
   drawCircle(centerX, centerY, 150 - i * 50, colors[i]);
 }</code></pre>
 
-        <h3>Desafio 3: Céu Estrelado</h3>
-        <p>Use um loop e <code>Math.random()</code> para desenhar 100 estrelas em locais aleatórios.</p>
-        <pre><code>// Dica: canvas.width e canvas.height dão o tamanho da tela
+            <h3>Desafio 3: Céu Estrelado</h3>
+            <p>Use um loop e <code>Math.random()</code> para desenhar 100 estrelas em locais aleatórios.</p>
+            <pre><button class="copy-button" aria-label="Copiar código">⎘</button><code>// Dica: canvas.width e canvas.height dão o tamanho da tela
 for (let i = 0; i < 100; i++) {
   let x = Math.random() * canvas.width;
   let y = Math.random() * canvas.height;
   let size = Math.random() * 8 + 2;
   drawStar(x, y, size, 'yellow');
 }</code></pre>
+
+            <h3>Super Desafio: Tetris Simplificado</h3>
+            <p>Criar um Tetris completo envolve lógica de jogo complexa (colisão, rotação de peças, pontuação, etc.) que
+                vai além das funções básicas do JSTurtle. No entanto, você pode começar a explorar a ideia de criar um
+                jogo de tabuleiro com blocos usando as funções <code>drawSquare()</code> e controlando as posições das
+                peças com variáveis e a função <code>draw()</code> para animação. Isso exigiria que você gerenciasse a
+                lógica de colisão e movimento manualmente.</p>
+            <p>Por exemplo, você poderia simular a queda de um único quadrado:</p>
+            <pre><button class="copy-button" aria-label="Copiar código">⎘</button><code>let blockY = 0;
+let blockX = CenterX();
+let blockSize = 30;
+
+function draw() {
+  clear();
+  drawSquare(blockX, blockY, blockSize, 'blue');
+  blockY += 2; // Faz o bloco cair
+  if (blockY > canvas.height - blockSize) {
+    blockY = canvas.height - blockSize; // Para o bloco na base
+  }
+}</code></pre>
+            <p>Para um Tetris completo, você precisaria de conceitos mais avançados de programação, como arrays
+                bidimensionais para representar o tabuleiro, detecção de colisão entre blocos e o tabuleiro, e a
+                capacidade de girar as formas.</p>
+        </div>
     </dialog>
 
     <script>
@@ -386,6 +473,9 @@ for (let i = 0; i < 100; i++) {
             const ctx = canvas.getContext('2d');
             const intellisenseBox = document.getElementById('intellisense-box');
             let animationFrameId = null;
+
+            let currentMouseX = 0;
+            let currentMouseY = 0;
 
             const helpDialog = document.getElementById('help-dialog');
             const challengesDialog = document.getElementById('challenges-dialog');
@@ -402,6 +492,13 @@ for (let i = 0; i < 100; i++) {
             };
             new ResizeObserver(resizeCanvas).observe(canvas.parentElement);
 
+            canvas.addEventListener('mousemove', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                currentMouseX = event.clientX - rect.left;
+                currentMouseY = event.clientY - rect.top;
+            });
+
+
             const functionSignatures = {
                 'clear': '()',
                 'drawCircle': '(x, y, radius, color)',
@@ -412,7 +509,10 @@ for (let i = 0; i < 100; i++) {
                 'drawText': '(text, x, y, size, color)',
                 'CenterX': '()',
                 'CenterY': '()',
-                'drawTriangle': '(x, y, size, color)'
+                'drawTriangle': '(x, y, size, color)',
+                'RandomInt': '(min, max)',
+                'MouseX': '()',
+                'MouseY': '()'
             };
 
             const userScope = {
@@ -488,6 +588,14 @@ for (let i = 0; i < 100; i++) {
                 },
                 CenterX: () => canvas.width / 2,
                 CenterY: () => canvas.height / 2,
+                RandomInt: (min, max) => {
+                    min = Math.ceil(min);
+                    max = Math.floor(max);
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                },
+                // New MouseX and MouseY functions
+                MouseX: () => currentMouseX,
+                MouseY: () => currentMouseY,
             };
 
             const runCode = () => {
@@ -631,6 +739,48 @@ for (let i = 0; i < 100; i++) {
                 if (e.ctrlKey && e.key === 'Enter') {
                     e.preventDefault();
                     runCode();
+                    return;
+                }
+
+                if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                    e.preventDefault();
+
+                    const text = textarea.value;
+                    const cursorPosition = textarea.selectionStart;
+
+                    let lineStart = text.lastIndexOf('\n', cursorPosition - 1);
+                    lineStart = (lineStart === -1) ? 0 : lineStart + 1;
+
+                    let lineEnd = text.indexOf('\n', cursorPosition);
+                    if (lineEnd === -1) {
+                        lineEnd = text.length;
+                    }
+
+                    const currentLineContent = text.substring(lineStart, lineEnd);
+                    
+                    let newText;
+                    let newCursorPosition;
+
+                    if (e.key === 'ArrowDown') {
+                        const newLineToAdd = '\n';
+
+                        if (lineEnd === text.length && text.length > 0 && !text.endsWith('\n')) {
+                            newText = text + newLineToAdd + currentLineContent + newLineToAdd;
+                        } else {
+                            const insertionPoint = lineEnd === text.length ? text.length : lineEnd + 1;
+                            newText = text.substring(0, insertionPoint) + currentLineContent + newLineToAdd + text.substring(insertionPoint);
+                        }
+                        newCursorPosition = cursorPosition;
+
+                    } else {
+                        const newLineToAdd = '\n';
+                        newText = text.substring(0, lineStart) + currentLineContent + newLineToAdd + text.substring(lineStart);
+                        newCursorPosition = cursorPosition + (currentLineContent + newLineToAdd).length; 
+                    }
+
+                    textarea.value = newText;
+                    textarea.setSelectionRange(newCursorPosition, newCursorPosition);
+                    return;
                 }
 
                 if (intellisenseBox.style.display === 'block') {
@@ -693,6 +843,21 @@ for (let i = 0; i < 100; i++) {
 
                 return { x: rect.left, y: rect.top };
             }
+
+            document.querySelectorAll('.copy-button').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const codeBlock = button.nextElementSibling.textContent;
+                    try {
+                        await navigator.clipboard.writeText(codeBlock);
+                        button.textContent = '✓';
+                        setTimeout(() => {
+                            button.textContent = '⎘';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                    }
+                });
+            });
 
             resizeCanvas();
         });
